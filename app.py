@@ -22,6 +22,24 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "forma.db")
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS generations (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            country      TEXT NOT NULL,
+            country_name TEXT NOT NULL,
+            flag         TEXT,
+            created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+            ip_hash      TEXT
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS email_leads (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      TEXT UNIQUE NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
     return conn
 
 def init_db():
