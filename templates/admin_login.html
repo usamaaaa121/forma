@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forma Admin — Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: #0F172A; }
+    .card { background: #1E293B; border: 1px solid #334155; border-radius: 20px; }
+    input {
+      background: #0F172A; border: 1.5px solid #334155; color: #F1F5F9;
+      border-radius: 10px; padding: 11px 14px; font-size: 14px; width: 100%;
+      outline: none; transition: border-color 0.15s;
+    }
+    input:focus { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+    input::placeholder { color: #475569; }
+    label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; display: block; margin-bottom: 5px; }
+    .btn { background: linear-gradient(135deg, #7C3AED, #8B5CF6); color: #fff; font-weight: 700; border-radius: 12px; border: none; cursor: pointer; padding: 12px 24px; width: 100%; font-size: 14px; transition: all 0.18s; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,58,237,0.4); }
+    .logo-mark { width: 44px; height: 44px; background: linear-gradient(135deg,#7C3AED,#F59E0B); border-radius: 14px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; color:#fff; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-sm">
+
+    <!-- Logo -->
+    <div class="flex flex-col items-center mb-8">
+      <div class="logo-mark mb-3">F</div>
+      <div style="font-weight:800;font-size:1.2rem;color:#F1F5F9;letter-spacing:-0.5px;">forma<span style="color:#7C3AED;">.</span></div>
+      <div style="color:#475569;font-size:13px;margin-top:4px;">Admin Dashboard</div>
+    </div>
+
+    <div class="card p-8">
+      <h1 style="font-weight:700;font-size:1.1rem;color:#F1F5F9;margin-bottom:6px;">Sign in</h1>
+      <p style="color:#475569;font-size:13px;margin-bottom:24px;">Enter your admin credentials to continue.</p>
+
+      {% if error %}
+      <div style="background:#450a0a;border:1px solid #7f1d1d;border-radius:10px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-bottom:20px;">
+        ⚠ {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="/admin/login">
+        <div style="margin-bottom:16px;">
+          <label>Username</label>
+          <input type="text" name="username" placeholder="admin" required autocomplete="username" />
+        </div>
+        <div style="margin-bottom:24px;">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn">Sign in →</button>
+      </form>
+    </div>
+
+    <p style="text-align:center;font-size:11px;color:#1e293b;margin-top:24px;">forma. · Admin only</p>
+  </div>
+</body>
+</html>

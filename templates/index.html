@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forma — The right format. Every country.</title>
+  <meta name="description" content="Paste a job description. Get a perfectly formatted, locally-correct resume for any country in seconds." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+    :root {
+      --violet: #7C3AED;
+      --violet-light: #8B5CF6;
+      --violet-pale: #EDE9FE;
+      --amber: #F59E0B;
+      --amber-pale: #FEF3C7;
+      --dark: #0F172A;
+      --mid: #475569;
+      --light: #F8FAFC;
+      --border: #E2E8F0;
+    }
+
+    body { background: var(--light); color: var(--dark); }
+
+    /* ── Logo ─────────────────────────────── */
+    .forma-logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #7C3AED, #F59E0B);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 900; font-size: 18px; letter-spacing: -1px;
+    }
+
+    /* ── Hero ─────────────────────────────── */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124,58,237,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(245,158,11,0.08) 0%, transparent 60%),
+        #F8FAFC;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #7C3AED 0%, #C084FC 50%, #F59E0B 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Pill badge ───────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--violet-pale); color: var(--violet);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 99px; padding: 5px 14px;
+      font-size: 12px; font-weight: 600;
+    }
+
+    /* ── Step indicators ──────────────────── */
+    .step-indicator { transition: all 0.3s ease; }
+    .step-active  { background: var(--violet);  color: #fff; }
+    .step-done    { background: #10b981; color: #fff; }
+    .step-pending { background: var(--border);  color: #94a3b8; }
+    .step-line    { height: 2px; background: var(--border); flex: 1; max-width: 40px; }
+
+    /* ── Country cards ────────────────────── */
+    .country-card {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .country-card:hover {
+      border-color: var(--violet-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124,58,237,0.12);
+    }
+    .country-card.selected {
+      border-color: var(--violet);
+      background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(139,92,246,0.04));
+      box-shadow: 0 6px 20px rgba(124,58,237,0.15);
+    }
+
+    /* ── Buttons ──────────────────────────── */
+    .btn-primary {
+      background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+      color: #fff; font-weight: 600;
+      border-radius: 12px; border: none;
+      cursor: pointer; transition: all 0.18s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+    }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-outline {
+      background: #fff; color: var(--mid);
+      border: 1.5px solid var(--border);
+      border-radius: 10px; cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline:hover { border-color: var(--violet-light); color: var(--violet); }
+
+    /* ── Form inputs ──────────────────────── */
+    input, textarea {
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px; color: var(--dark);
+      width: 100%; outline: none;
+      transition: border-color 0.15s;
+      background: #fff;
+    }
+    input:focus, textarea:focus { border-color: var(--violet-light); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+    textarea { resize: none; }
+    label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; display: block; margin-bottom: 5px; }
+
+    /* ── Card ─────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(15,23,42,0.04);
+    }
+
+    /* ── Resume output ────────────────────── */
+    .resume-output { font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.75; color: #1e293b; }
+    .resume-output h1 { font-size: 1.7rem; font-weight: 700; color: #0F172A; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+    .resume-output h2 {
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--violet);
+      border-bottom: 2px solid var(--violet-pale);
+      padding-bottom: 5px; margin-top: 24px; margin-bottom: 12px;
+      font-family: 'Inter', sans-serif;
+    }
+    .resume-output h3 { font-size: 1rem; font-weight: 700; color: #0F172A; margin-top: 12px; font-family: 'Inter', sans-serif; }
+    .resume-output p  { font-size: 0.9rem; color: #334155; margin-bottom: 6px; }
+    .resume-output ul { list-style: disc; padding-left: 20px; margin-bottom: 8px; }
+    .resume-output li { font-size: 0.9rem; color: #334155; margin-bottom: 3px; }
+    .resume-output strong { color: #0F172A; font-weight: 700; }
+    .resume-output em    { color: #64748b; }
+    .resume-output hr   { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+
+    /* ── Animations ───────────────────────── */
+    .fade-in { animation: fadeIn 0.35s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .float { animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+
+    .spin-slow { animation: spinSlow 8s linear infinite; }
+    @keyframes spinSlow { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+
+    /* ── Loading dots ─────────────────────── */
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--violet); display:inline-block; margin:0 3px; animation:blink 1.4s infinite; }
+    .dot:nth-child(2) { animation-delay:.2s; }
+    .dot:nth-child(3) { animation-delay:.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:.15;} 40%{opacity:1;} }
+
+    /* ── Print ────────────────────────────── */
+    @media print {
+      body * { visibility: hidden !important; }
+      #resume-print-zone, #resume-print-zone * { visibility: visible !important; }
+      #resume-print-zone {
+        position: fixed !important; left: 0 !important; top: 0 !important;
+        width: 100% !important; padding: 48px !important;
+        background: white !important;
+      }
+    }
+  </style>
+</head>
+<body class="hero-bg min-h-screen">
+
+  <!-- ── NAV ──────────────────────────────────────────────────── -->
+  <nav class="px-6 py-4 max-w-6xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="forma-logo-mark">F</div>
+      <span style="font-weight:800;font-size:1.15rem;color:#0F172A;letter-spacing:-0.5px;">
+        forma<span style="color:#7C3AED;">.</span>
+      </span>
+    </div>
+    <div class="hidden sm:flex items-center gap-2 text-xs font-medium" style="color:#94a3b8;">
+      <span class="badge">✦ 12 Countries</span>
+      <span class="badge" style="background:var(--amber-pale);color:#92400E;border-color:rgba(245,158,11,0.25);">✦ AI-Powered</span>
+    </div>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <header class="text-center px-6 pt-10 pb-8 max-w-2xl mx-auto">
+    <div class="badge mb-5">✦ Powered by Claude AI</div>
+    <h1 class="font-black leading-tight mb-4" style="font-size:clamp(2rem,5vw,3.25rem);color:#0F172A;letter-spacing:-1.5px;">
+      The right format.<br /><span class="gradient-text">Every country.</span>
+    </h1>
+    <p style="color:#64748b;font-size:1.05rem;line-height:1.6;max-width:480px;margin:0 auto;">
+      Paste a job description. We generate a perfectly formatted, locally-correct resume — photo rules, section order, language and cultural norms handled automatically.
+    </p>
+
+    <!-- Stats row -->
+    <div class="flex items-center justify-center gap-6 mt-8 flex-wrap">
+      <div class="text-center">
+        <div class="font-black text-2xl" style="color:#7C3AED;">12</div>
+        <div class="text-xs" style="color:#94a3b8;">Countries</div>
+      </div>
+      <div style="width:1px;height:32px;background:#e2e8f0;"></div>
+      <div class="text-center">
+        <div class="font-black text-2xl" style="color:#7C3AED;">30s</div>
+        <div class="text-xs" style="color:#94a3b8;">Generation time</div>
+      </div>
+      <div style="width:1px;height:32px;background:#e2e8f0;"></div>
+      <div class="text-center">
+        <div class="font-black text-2xl" style="color:#7C3AED;">Free</div>
+        <div class="text-xs" style="color:#94a3b8;">Always</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── STEP INDICATORS ──────────────────────────────────────── -->
+  <div class="flex items-center justify-center gap-2 px-6 mb-8">
+    <div id="si-1" class="step-indicator step-active w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+    <div class="step-line"></div>
+    <div id="si-2" class="step-indicator step-pending w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+    <div class="step-line"></div>
+    <div id="si-3" class="step-indicator step-pending w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+    <div class="step-line"></div>
+    <div id="si-4" class="step-indicator step-pending w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+  </div>
+  <div class="flex items-center justify-center gap-2 mb-8 text-xs" style="color:#94a3b8;">
+    <span id="sl-1" style="width:80px;text-align:center;font-weight:600;color:#7C3AED;">Country</span>
+    <span style="width:40px;"></span>
+    <span id="sl-2" style="width:80px;text-align:center;">Job Post</span>
+    <span style="width:40px;"></span>
+    <span id="sl-3" style="width:80px;text-align:center;">Your Info</span>
+    <span style="width:40px;"></span>
+    <span id="sl-4" style="width:80px;text-align:center;">Resume</span>
+  </div>
+
+  <!-- ── MAIN ──────────────────────────────────────────────────── -->
+  <main class="max-w-4xl mx-auto px-4 pb-24">
+
+    <!-- STEP 1: COUNTRY -->
+    <section id="step-1" class="fade-in">
+      <div class="text-center mb-6">
+        <h2 class="font-bold text-xl" style="color:#0F172A;">Where are you applying?</h2>
+        <p class="text-sm mt-1" style="color:#94a3b8;">Each country has different rules — we handle all of them.</p>
+      </div>
+      <div id="country-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8"></div>
+      <div class="flex justify-center">
+        <button id="btn-step1" onclick="goToStep(2)" disabled
+          class="btn-primary px-8 py-3 text-sm">
+          Continue →
+        </button>
+      </div>
+    </section>
+
+    <!-- STEP 2: JOB DESCRIPTION -->
+    <section id="step-2" class="hidden fade-in">
+      <div class="text-center mb-6">
+        <h2 class="font-bold text-xl" style="color:#0F172A;">Paste the job description</h2>
+        <p class="text-sm mt-1" style="color:#94a3b8;">We extract the right keywords and tailor your resume to this role.</p>
+      </div>
+      <div class="card">
+        <textarea id="job-description" rows="9"
+          placeholder="Paste the full job posting here — role, responsibilities, requirements, company info. The more detail, the better your resume..."
+          style="border-color:#e2e8f0;font-size:13.5px;line-height:1.7;"></textarea>
+        <div class="flex items-center justify-between mt-5">
+          <button onclick="goToStep(1)" class="text-sm" style="color:#94a3b8;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">← Back</button>
+          <button onclick="goToStep(3)" class="btn-primary px-8 py-3 text-sm">Continue →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3: USER INFO -->
+    <section id="step-3" class="hidden fade-in">
+      <div class="text-center mb-6">
+        <h2 class="font-bold text-xl" style="color:#0F172A;">Tell us about yourself</h2>
+        <p class="text-sm mt-1" style="color:#94a3b8;">Quick details — AI does the heavy lifting from here.</p>
+      </div>
+      <div class="card">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label>Full Name *</label>
+            <input id="u-name" type="text" placeholder="Sarah Johnson" />
+          </div>
+          <div>
+            <label>Email *</label>
+            <input id="u-email" type="email" placeholder="sarah@email.com" />
+          </div>
+          <div>
+            <label>Phone</label>
+            <input id="u-phone" type="text" placeholder="+1 555 000 0000" />
+          </div>
+          <div>
+            <label>Location</label>
+            <input id="u-location" type="text" placeholder="City, Country" />
+          </div>
+          <div>
+            <label>Current / Last Job Title</label>
+            <input id="u-title" type="text" placeholder="Senior Product Manager" />
+          </div>
+          <div>
+            <label>Years of Experience</label>
+            <input id="u-years" type="text" placeholder="7" />
+          </div>
+          <div class="sm:col-span-2">
+            <label>Key Skills <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0bec5;">(comma-separated)</span></label>
+            <input id="u-skills" type="text" placeholder="Product strategy, SQL, Agile, Stakeholder management, Figma..." />
+          </div>
+          <div class="sm:col-span-2">
+            <label>Work Experience <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0bec5;">(brief summary is fine)</span></label>
+            <textarea id="u-experience" rows="4"
+              placeholder="e.g. 4 years at Google as PM — launched 3 products with $2M ARR. Before that 3 years at a fintech startup leading growth from 0 to 50K users..."></textarea>
+          </div>
+          <div>
+            <label>Education</label>
+            <input id="u-education" type="text" placeholder="BSc Computer Science, MIT, 2017" />
+          </div>
+          <div>
+            <label>Extra <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#b0bec5;">(certs, languages, awards)</span></label>
+            <input id="u-extra" type="text" placeholder="AWS Certified, Arabic native, Forbes 30 Under 30..." />
+          </div>
+        </div>
+        <div class="flex items-center justify-between mt-6">
+          <button onclick="goToStep(2)" class="text-sm" style="color:#94a3b8;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">← Back</button>
+          <button onclick="generateResume()" class="btn-primary px-8 py-3 text-sm">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Generate Resume
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4: RESUME OUTPUT -->
+    <section id="step-4" class="hidden fade-in">
+
+      <!-- Loading -->
+      <div id="loading-state" class="text-center py-20">
+        <div class="float mx-auto mb-6" style="width:64px;height:64px;background:linear-gradient(135deg,#7C3AED,#F59E0B);border-radius:18px;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:28px;font-weight:900;color:white;letter-spacing:-1px;">F</span>
+        </div>
+        <p class="font-bold text-lg mb-1" style="color:#0F172A;">Writing your resume<span id="country-for" style="color:#7C3AED;"></span>...</p>
+        <p class="text-sm mb-6" style="color:#94a3b8;">Applying country rules · Matching keywords · Formatting sections</p>
+        <div class="flex items-center justify-center gap-1">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="error-state" class="hidden text-center py-16">
+        <div class="mx-auto mb-4" style="width:56px;height:56px;background:#FEF2F2;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;">⚠️</div>
+        <p class="font-bold mb-2" style="color:#0F172A;">Something went wrong</p>
+        <p id="error-message" class="text-sm mb-6" style="color:#94a3b8;max-width:320px;margin:0 auto 24px;"></p>
+        <button onclick="goToStep(3)" class="btn-primary px-6 py-2.5 text-sm">← Try Again</button>
+      </div>
+
+      <!-- Output -->
+      <div id="resume-output-container" class="hidden">
+
+        <!-- Toolbar -->
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button onclick="goToStep(1)" class="text-sm" style="color:#94a3b8;">← Start over</button>
+            <span id="resume-badge" class="badge"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="copyResume()" id="copy-btn" class="btn-outline px-4 py-2 text-sm font-medium">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              Copy text
+            </button>
+            <button onclick="printResume()" class="btn-primary px-5 py-2 text-sm font-medium">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Resume card -->
+        <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 40px rgba(15,23,42,0.07);padding:clamp(24px,5vw,64px);">
+          <div id="resume-print-zone" class="resume-output"></div>
+        </div>
+
+        <!-- Regenerate + email capture -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <button onclick="generateResume()" class="text-sm" style="color:#94a3b8;text-decoration:underline;text-underline-offset:4px;">
+            Not quite right? Regenerate ↺
+          </button>
+          <div class="flex items-center gap-2 p-3 rounded-xl border" style="border-color:#e2e8f0;background:#fff;max-width:340px;width:100%;">
+            <input id="notify-email" type="email" placeholder="Email for cover letter feature updates"
+              style="border:none;padding:0;font-size:13px;flex:1;box-shadow:none;" />
+            <button onclick="saveEmail()" class="btn-primary px-4 py-1.5 text-xs font-semibold" style="white-space:nowrap;">Notify me</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────── -->
+  <footer class="text-center pb-10 px-6">
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <div class="forma-logo-mark" style="width:24px;height:24px;border-radius:7px;font-size:12px;">F</div>
+      <span style="font-weight:700;font-size:0.9rem;color:#0F172A;">forma.</span>
+    </div>
+    <p style="font-size:11px;color:#cbd5e1;">The right format. Every country. — Free forever · Powered by Claude AI</p>
+  </footer>
+
+  <!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+  <script>
+    const COUNTRIES = {{ countries | tojson }};
+    let selectedCountry = null;
+    let generatedMarkdown = '';
+
+    // ── Build country grid ────────────────────────────────────────
+    function buildGrid() {
+      const grid = document.getElementById('country-grid');
+      Object.entries(COUNTRIES).forEach(([code, c]) => {
+        const el = document.createElement('div');
+        el.className = 'country-card';
+        el.dataset.code = code;
+        el.innerHTML = `
+          <div style="font-size:2.2rem;margin-bottom:6px;">${c.flag}</div>
+          <div style="font-size:12px;font-weight:700;color:#0F172A;line-height:1.3;">${c.name}</div>
+          <div style="font-size:10px;color:#7C3AED;font-weight:600;margin-top:3px;">${c.format}</div>
+        `;
+        el.addEventListener('click', () => {
+          document.querySelectorAll('.country-card').forEach(c => c.classList.remove('selected'));
+          el.classList.add('selected');
+          selectedCountry = code;
+          const btn = document.getElementById('btn-step1');
+          btn.disabled = false;
+        });
+        grid.appendChild(el);
+      });
+    }
+
+    // ── Step navigation ───────────────────────────────────────────
+    function goToStep(n) {
+      [1,2,3,4].forEach(i => {
+        const s = document.getElementById(`step-${i}`);
+        s.classList.add('hidden');
+        s.classList.remove('fade-in');
+      });
+      const active = document.getElementById(`step-${n}`);
+      active.classList.remove('hidden');
+      requestAnimationFrame(() => active.classList.add('fade-in'));
+
+      const labels = ['Country', 'Job Post', 'Your Info', 'Resume'];
+      [1,2,3,4].forEach(i => {
+        const si = document.getElementById(`si-${i}`);
+        const sl = document.getElementById(`sl-${i}`);
+        si.className = 'step-indicator w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ';
+        if (i < n) { si.className += 'step-done'; si.textContent = '✓'; }
+        else if (i === n) { si.className += 'step-active'; si.textContent = i; }
+        else { si.className += 'step-pending'; si.textContent = i; }
+        sl.style.color = i === n ? '#7C3AED' : '#94a3b8';
+        sl.style.fontWeight = i === n ? '700' : '400';
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Generate ──────────────────────────────────────────────────
+    async function generateResume() {
+      const name = document.getElementById('u-name').value.trim();
+      if (!name) { alert('Please enter your name first.'); return; }
+
+      goToStep(4);
+      document.getElementById('loading-state').classList.remove('hidden');
+      document.getElementById('error-state').classList.add('hidden');
+      document.getElementById('resume-output-container').classList.add('hidden');
+
+      const c = COUNTRIES[selectedCountry];
+      document.getElementById('country-for').textContent = ` for ${c?.name}`;
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            country: selectedCountry,
+            jobDescription: document.getElementById('job-description').value,
+            userInfo: {
+              name,
+              email:          document.getElementById('u-email').value,
+              phone:          document.getElementById('u-phone').value,
+              location:       document.getElementById('u-location').value,
+              currentTitle:   document.getElementById('u-title').value,
+              yearsExperience:document.getElementById('u-years').value,
+              skills:         document.getElementById('u-skills').value,
+              experience:     document.getElementById('u-experience').value,
+              education:      document.getElementById('u-education').value,
+              additionalInfo: document.getElementById('u-extra').value,
+            }
+          })
+        });
+
+        const data = await res.json();
+        document.getElementById('loading-state').classList.add('hidden');
+        if (!data.success) throw new Error(data.error || 'Generation failed');
+
+        generatedMarkdown = data.resume;
+        document.getElementById('resume-print-zone').innerHTML = marked.parse(data.resume);
+        document.getElementById('resume-badge').innerHTML = `${data.flag} ${data.format}`;
+        document.getElementById('resume-output-container').classList.remove('hidden');
+
+      } catch(err) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('error-state').classList.remove('hidden');
+        document.getElementById('error-message').textContent = err.message;
+      }
+    }
+
+    // ── Actions ───────────────────────────────────────────────────
+    function copyResume() {
+      navigator.clipboard.writeText(generatedMarkdown).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Copy text`;
+        }, 2000);
+      });
+    }
+
+    function printResume() { window.print(); }
+
+    function saveEmail() {
+      const email = document.getElementById('notify-email').value.trim();
+      if (!email) return;
+      // Wire to your email service (Mailchimp, ConvertKit, etc.)
+      alert(`Got it! We'll notify ${email} when cover letters launch 🎉`);
+      document.getElementById('notify-email').value = '';
+    }
+
+    // ── Init ──────────────────────────────────────────────────────
+    buildGrid();
+  </script>
+</body>
+</html>

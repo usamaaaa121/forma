@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forma Admin — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+    body { background: #0F172A; color: #F1F5F9; }
+
+    .sidebar {
+      width: 220px; min-height: 100vh;
+      background: #0F172A;
+      border-right: 1px solid #1E293B;
+      padding: 24px 16px;
+      position: fixed; left: 0; top: 0;
+      display: flex; flex-direction: column;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 500; color: #64748b;
+      text-decoration: none; transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover, .nav-item.active { background: #1E293B; color: #F1F5F9; }
+    .nav-item.active { color: #A78BFA; }
+
+    .main { margin-left: 220px; padding: 32px; min-height: 100vh; }
+
+    .stat-card {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .stat-val { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 6px; }
+    .stat-sub { font-size: 12px; color: #475569; margin-top: 4px; }
+
+    .section-card {
+      background: #1E293B; border: 1px solid #334155;
+      border-radius: 16px; padding: 24px;
+    }
+    .section-title { font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; }
+
+    /* Bar chart */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .bar-label { font-size: 12px; color: #94a3b8; min-width: 140px; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: #0F172A; border-radius: 99px; height: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #7C3AED, #A78BFA); border-radius: 99px; transition: width 0.6s ease; }
+    .bar-count { font-size: 12px; font-weight: 700; color: #A78BFA; min-width: 28px; text-align: right; }
+
+    /* Daily sparkline */
+    .spark-col { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; }
+    .spark-bar { width: 22px; background: linear-gradient(180deg, #7C3AED, #4C1D95); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.4s ease; }
+    .spark-label { font-size: 9px; color: #475569; }
+    .spark-val { font-size: 9px; color: #7C3AED; font-weight: 700; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; padding: 0 0 12px; border-bottom: 1px solid #334155; }
+    td { padding: 10px 0; border-bottom: 1px solid #1a2537; color: #94a3b8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    td:first-child { color: #F1F5F9; }
+
+    .badge-country {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(124,58,237,0.15); color: #A78BFA;
+      border-radius: 99px; padding: 2px 10px; font-size: 11px; font-weight: 600;
+    }
+
+    .logo-mark { width: 32px; height: 32px; background: linear-gradient(135deg,#7C3AED,#F59E0B); border-radius: 10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; color:#fff; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="flex items-center gap-2 mb-8 px-2">
+      <div class="logo-mark">F</div>
+      <span style="font-weight:800;font-size:1rem;color:#F1F5F9;">forma<span style="color:#7C3AED;">.</span></span>
+    </div>
+
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#1E3A5F;padding:0 12px;margin-bottom:8px;">Main</div>
+    <a href="/admin" class="nav-item active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      Dashboard
+    </a>
+    <a href="/" target="_blank" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      View Live App
+    </a>
+
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#1E3A5F;padding:0 12px;margin:20px 0 8px;">Data</div>
+    <a href="#activity" class="nav-item" onclick="scrollTo('activity')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Activity Log
+    </a>
+    <a href="#leads" class="nav-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      Email Leads
+    </a>
+
+    <div style="flex:1;"></div>
+    <a href="/admin/logout" class="nav-item" style="color:#ef4444;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      Sign out
+    </a>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#F1F5F9;letter-spacing:-0.5px;">Dashboard</h1>
+        <p style="font-size:13px;color:#475569;margin-top:2px;">Welcome back. Here's what's happening on Forma.</p>
+      </div>
+      <div style="font-size:12px;color:#334155;background:#1E293B;border:1px solid #334155;border-radius:8px;padding:6px 14px;">
+        🕐 {{ now if now else "Live" }}
+      </div>
+    </div>
+
+    <!-- ── STAT BOXES ── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+      <div class="stat-card">
+        <div class="stat-label">Total Resumes</div>
+        <div class="stat-val" style="color:#A78BFA;">{{ total }}</div>
+        <div class="stat-sub">All time generations</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-val" style="color:#34d399;">{{ today_count }}</div>
+        <div class="stat-sub">Resumes generated today</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-val" style="color:#F59E0B;">{{ week_count }}</div>
+        <div class="stat-sub">Last 7 days</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Email Leads</div>
+        <div class="stat-val" style="color:#fb7185;">{{ total_leads }}</div>
+        <div class="stat-sub">Subscribers captured</div>
+      </div>
+
+    </div>
+
+    <!-- ── ROW: Country breakdown + Sparkline ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <!-- Country breakdown -->
+      <div class="section-card">
+        <div class="section-title">Resumes by Country</div>
+        {% if by_country %}
+          {% set max_cnt = by_country[0].cnt %}
+          {% for row in by_country %}
+          <div class="bar-row">
+            <div class="bar-label">
+              <span>{{ row.flag }}</span>
+              <span>{{ row.country_name }}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: {{ ((row.cnt / max_cnt) * 100) | int }}%;"></div>
+            </div>
+            <div class="bar-count">{{ row.cnt }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#334155;font-size:13px;">No data yet — resumes will appear here after generation.</p>
+        {% endif %}
+      </div>
+
+      <!-- Daily sparkline -->
+      <div class="section-card">
+        <div class="section-title">Daily Trend (14 days)</div>
+        {% if daily %}
+          {% set max_day = namespace(v=1) %}
+          {% for d in daily %}{% if d.cnt > max_day.v %}{% set max_day.v = d.cnt %}{% endif %}{% endfor %}
+          <div class="flex items-end gap-1.5" style="height:120px;align-items:flex-end;">
+            {% for d in daily %}
+            <div class="spark-col" style="flex:1;">
+              <div class="spark-label">{{ d.day[-5:] }}</div>
+              <div class="spark-val">{{ d.cnt }}</div>
+              <div class="spark-bar" style="height: {{ [((d.cnt / max_day.v) * 100) | int, 4] | max }}px;"></div>
+            </div>
+            {% endfor %}
+          </div>
+          {% if daily | length == 0 %}
+          <p style="color:#334155;font-size:13px;">Not enough data yet.</p>
+          {% endif %}
+        {% else %}
+          <p style="color:#334155;font-size:13px;">No data yet — trend will appear after first uses.</p>
+        {% endif %}
+
+        <!-- Top country callout -->
+        {% if top_country %}
+        <div style="margin-top:20px;background:#0F172A;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.8rem;">{{ top_country.flag }}</span>
+          <div>
+            <div style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Top Country</div>
+            <div style="font-size:15px;font-weight:800;color:#F1F5F9;">{{ top_country.country_name }}</div>
+            <div style="font-size:11px;color:#7C3AED;">{{ top_country.cnt }} resume{{ 's' if top_country.cnt != 1 else '' }}</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- ── Recent Activity ── -->
+    <div class="section-card mb-6" id="activity">
+      <div class="section-title">Recent Activity</div>
+      {% if recent %}
+      <table>
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>Generated At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in recent %}
+          <tr>
+            <td>
+              <span class="badge-country">{{ row.flag }} {{ row.country_name }}</span>
+            </td>
+            <td style="color:#475569;">{{ row.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p style="color:#334155;font-size:13px;">No activity yet. Share the app and check back soon!</p>
+      {% endif %}
+    </div>
+
+    <!-- ── Email Leads ── -->
+    <div class="section-card" id="leads">
+      <div class="flex items-center justify-between mb-4">
+        <div class="section-title" style="margin-bottom:0;">Email Leads</div>
+        <span style="font-size:12px;color:#7C3AED;font-weight:700;">{{ total_leads }} total</span>
+      </div>
+      {% if leads %}
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Signed up</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in leads %}
+          <tr>
+            <td>{{ lead.email }}</td>
+            <td style="color:#475569;">{{ lead.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p style="color:#334155;font-size:13px;">No email leads yet. They'll appear here when users subscribe for updates.</p>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top:32px;text-align:center;font-size:11px;color:#1E293B;">
+      forma. Admin · Build {{ total }} resumes served
+    </div>
+
+  </main>
+
+  <script>
+    // Auto-refresh every 60 seconds
+    setTimeout(() => location.reload(), 60000);
+  </script>
+
+</body>
+</html>
